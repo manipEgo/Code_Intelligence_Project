@@ -2,4 +2,6 @@
 *.zip
 .vscode
 __pycache__
+
 CodeCompletion-token
+models
