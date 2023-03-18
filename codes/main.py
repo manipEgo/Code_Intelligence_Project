@@ -2,7 +2,8 @@ from NGramPredictor import NGramPredictor
 import argparse
 from tqdm import tqdm
 
-N_GRAM_N = 3
+N_GRAM_N = 4
+TEST_LINES = 200
 
 def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_model=None):
     ngram_predictor = NGramPredictor(N_GRAM_N)
@@ -35,7 +36,7 @@ def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_
             print("Generating predictions...")
             correct_cnt = 0
             valid_word_cnt = 0
-            for line in tqdm(test_lines):
+            for line in tqdm(test_lines[:TEST_LINES]):
                 tokens = line.strip().split()
                 if len(tokens) <= ngram_predictor.n:
                     continue
