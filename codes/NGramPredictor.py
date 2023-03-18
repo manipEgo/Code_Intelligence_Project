@@ -1,5 +1,6 @@
 from collections import defaultdict, Counter
 import pickle
+import os
 
 
 class NGramPredictor:
@@ -26,9 +27,14 @@ class NGramPredictor:
             return None
 
     def save_model(self, file_path):
+        dir_path = os.path.dirname(file_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
         with open(file_path, 'wb') as file:
             pickle.dump(self.model, file)
 
     def load_model(self, file_path):
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
         with open(file_path, 'rb') as file:
             self.model = pickle.load(file)

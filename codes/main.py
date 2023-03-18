@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_model=None):
     if load_model:
-        ngram_predictor = NGramPredictor.load(load_model)
+        ngram_predictor = NGramPredictor.load_model(load_model)
     else:
         if train_file:
             # Read words from a file and split by space
@@ -20,7 +20,7 @@ def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_
             ngram_predictor.train(tqdm(tokenized_dataset))
 
             if save_model:
-                ngram_predictor.save(save_model)
+                ngram_predictor.save_model(save_model)
         else:
             raise ValueError("Either provide a train_file or load_model")
 
