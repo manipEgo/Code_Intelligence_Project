@@ -8,14 +8,14 @@ class NGramPredictor:
         self.n = n
         self.model = defaultdict(Counter)
 
-    def _generate_ngrams(self, tokens):
-        return zip(*[tokens[i:] for i in range(self.n)])
-
     def train(self, tokenized_dataset):
-        for tokens in tokenized_dataset:
-            for ngram in self._generate_ngrams(tokens):
-                context, token = tuple(ngram[:-1]), ngram[-1]
-                self.model[context][token] += 1
+        context = []
+        for token in tokenized_dataset:
+            if len(context) < self.n - 1:
+                context.append(token)
+            else:
+                self.model[tuple(context)][token] += 1
+                context = context[1:] + [token]
 
     def predict(self, context):
         if len(context) != self.n - 1:
@@ -24,7 +24,7 @@ class NGramPredictor:
         if context in self.model:
             return self.model[context].most_common(1)[0][0]
         else:
-            return None
+            return "NULL"
 
     def save_model(self, file_path):
         dir_path = os.path.dirname(file_path)
