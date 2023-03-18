@@ -2,10 +2,12 @@ from NGramPredictor import NGramPredictor
 import argparse
 from tqdm import tqdm
 
+N_GRAM_N = 3
 
 def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_model=None):
+    ngram_predictor = NGramPredictor(N_GRAM_N)
     if load_model:
-        ngram_predictor = NGramPredictor.load_model(load_model)
+        ngram_predictor.load_model(load_model)
     else:
         if train_file:
             # Read words from a file and split by space
@@ -15,7 +17,6 @@ def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_
             print("words count: " + str(len(tokenized_dataset)))
 
             # Initialize and train the NGramPredictor
-            ngram_predictor = NGramPredictor(3)
             print("Training the NGramPredictor...")
             ngram_predictor.train(tqdm(tokenized_dataset))
 
@@ -32,15 +33,23 @@ def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_
         # Generate n-gram predictions for each line in the test input
         with open(pred_file, "w") as pred_file:
             print("Generating predictions...")
+            correct_cnt = 0
+            valid_word_cnt = 0
             for line in tqdm(test_lines):
                 tokens = line.strip().split()
+                if len(tokens) <= ngram_predictor.n:
+                    continue
                 context = tokens[:ngram_predictor.n - 1]
                 predictions = []
-                for _ in range(len(tokens)):
+                for i in range(ngram_predictor.n, len(tokens) - 1):
                     prediction = ngram_predictor.predict(context)
+                    if prediction == tokens[i]:
+                        correct_cnt += 1
+                    valid_word_cnt += 1
                     predictions.append(prediction)
-                    context = context[1:] + [prediction]
+                    context = context[1:] + [tokens[i]]
                 pred_file.write(" ".join(predictions) + "\n")
+            print("Test Accuracy: {:.2%}".format(correct_cnt / valid_word_cnt))
     elif test_file or pred_file:
         raise ValueError("Both test_file and pred_file must be provided")
 
