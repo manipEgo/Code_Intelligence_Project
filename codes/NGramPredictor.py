@@ -26,6 +26,16 @@ class NGramPredictor:
         else:
             return "NULL"
 
+    def predict_list(self, context, top_n=100):
+        if len(context) != self.n - 1:
+            raise ValueError("Context length must be equal to n-1")
+        context = tuple(context)
+        if context in self.model:
+            total_count = sum(self.model[context].values())
+            return [(word, count / total_count) for word, count in self.model[context].most_common(top_n)]
+        else:
+            return [("NULL", 1)]
+
     def save_model(self, file_path):
         dir_path = os.path.dirname(file_path)
         if not os.path.exists(dir_path):
