@@ -1,7 +1,8 @@
-*.pdf
 *.zip
 .vscode
+.idea
 __pycache__
 
 CodeCompletion-token
+CodeCompletion-line
 models

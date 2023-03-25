@@ -5,6 +5,7 @@ from tqdm import tqdm
 N_GRAM_N = 4
 TEST_LINES = 200
 
+
 def main(train_file=None, test_file=None, pred_file=None, save_model=None, load_model=None):
     ngram_predictor = NGramPredictor(N_GRAM_N)
     if load_model:
