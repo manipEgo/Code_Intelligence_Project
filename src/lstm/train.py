@@ -1,4 +1,5 @@
 import argparse
+import traceback
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -17,19 +18,15 @@ def load_data(train_filepath, test_filepath, token2idx):
     return train_loader, test_loader
 
 
-def train(model: LSTMModel, train_loader: DataLoader, test_loader: DataLoader):
-    if OPT.device is None:
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    else:
-        device = OPT.device
-    model = model.to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
-
+def train(model: LSTMModel,
+          train_loader: DataLoader,
+          test_loader: DataLoader,
+          criterion: nn.Module,
+          optimizer: optim.Optimizer):
     for epoch in range(OPT.max_epochs):
         running_loss = 0.0
         for inputs, labels in train_loader:
-            inputs, labels = inputs.to(device), labels.to(device)
+            inputs, labels = inputs.to(model.device), labels.to(model.device)
             h0, c0 = model.init_hidden(OPT.batch_size)
             optimizer.zero_grad()
 
@@ -61,8 +58,21 @@ def main():
     LOGGER.info('Dataloader preparation complete')
 
     LOGGER.info('Start training')
-    model = LSTMModel(len(token2idx), 768, 768)
-    train(model, train_loader, test_loader)
+    if OPT.device is None:
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    else:
+        device = OPT.device
+
+    LOGGER.info('Memory summary before training')
+    print(torch.cuda.memory_summary(device=device))
+    try:
+        model = LSTMModel(device, len(token2idx), 768, 768).to(device)
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
+        train(model, train_loader, test_loader, criterion, optimizer)
+    except torch.cuda.OutOfMemoryError:
+        print(torch.cuda.memory_summary(device=device))
+        traceback.print_exc()
 
 
 if __name__ == '__main__':
