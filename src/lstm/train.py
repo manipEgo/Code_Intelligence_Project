@@ -9,11 +9,12 @@ from dataset import CodeDataset
 from logger import get_logger
 from model import LSTMModel
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 
-def load_data(token2idx):
-    train_dataset = CodeDataset(OPT.seq_length, token2idx)
-    test_dataset = CodeDataset(OPT.seq_length, token2idx)
+def load_data(words, token2idx, idx2token):
+    train_dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
+    test_dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
     train_loader = DataLoader(train_dataset, batch_size=OPT.batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=OPT.batch_size, shuffle=True)
     return train_loader, test_loader
@@ -24,10 +25,10 @@ def train(model: LSTMModel,
           test_loader: DataLoader,
           criterion: nn.Module,
           optimizer: optim.Optimizer):
-    for epoch in range(OPT.max_epochs):
+    for epoch in tqdm(range(OPT.max_epochs)):
         running_loss = 0.0
         h0, c0 = model.init_hidden(OPT.batch_size)
-        for inputs, labels in train_loader:
+        for inputs, labels in tqdm(train_loader):
             torch.cuda.empty_cache()
             inputs, labels = inputs.to(model.device), labels.to(model.device)
             optimizer.zero_grad()
@@ -66,24 +67,24 @@ def evaluate(model: LSTMModel, criterion: nn.Module, loader: DataLoader):
 
 
 def tokenize(filepath):
-    tokens = []
+    words = []
     with open(filepath, 'r') as f:
         for line in f:
-            tokens.extend(line.strip().split())
-    unique_tokens = Counter(tokens)
+            words.extend(line.strip().split())
+    unique_tokens = Counter(words)
     unique_tokens = sorted(unique_tokens, key=unique_tokens.get, reverse=True)
     idx2token = list(unique_tokens)
     token2idx = {token: idx for idx, token in enumerate(idx2token)}
-    return idx2token, token2idx
+    return words, idx2token, token2idx
 
 
 def main():
     LOGGER.info(f'Start to tokenize train data in {OPT.train_file}')
-    idx2token, token2idx = tokenize(OPT.train_file)
+    words, idx2token, token2idx = tokenize(OPT.train_file)
     LOGGER.info('Tokenization complete')
 
     LOGGER.info(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
-    train_loader, test_loader = load_data(token2idx)
+    train_loader, test_loader = load_data(words, token2idx, idx2token)
     LOGGER.info('Dataloader preparation complete')
 
     LOGGER.info('Start training')
@@ -112,11 +113,11 @@ if __name__ == '__main__':
                         help='Path to the output prediction file'),
     parser.add_argument('--seq_length', type=int, default=10,
                         help='Sequence length needed to predict')
-    parser.add_argument('--batch_size', type=int, default=8,
+    parser.add_argument('--batch_size', type=int, default=32,
                         help='Batch size')
-    parser.add_argument('--max_epochs', type=int, default=1000,
+    parser.add_argument('--max_epochs', type=int, default=100,
                         help='Max epochs'),
-    parser.add_argument('--eval_freq', type=int, default=10,
+    parser.add_argument('--eval_freq', type=int, default=1,
                         help='Model evaluation frequency')
     parser.add_argument('--learning_rate', type=float, default=0.01,
                         help='Learning rate')
