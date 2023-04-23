@@ -12,12 +12,9 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 
-def load_data(words, token2idx, idx2token):
-    train_dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
-    test_dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
-    train_loader = DataLoader(train_dataset, batch_size=OPT.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=OPT.batch_size, shuffle=True)
-    return train_loader, test_loader
+def make_loader(words, token2idx, idx2token):
+    dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
+    return DataLoader(dataset, batch_size=OPT.batch_size, shuffle=True)
 
 
 def train(model: LSTMModel,
@@ -25,10 +22,11 @@ def train(model: LSTMModel,
           test_loader: DataLoader,
           criterion: nn.Module,
           optimizer: optim.Optimizer):
-    for epoch in tqdm(range(OPT.max_epochs)):
+    for epoch in range(OPT.max_epochs):
         running_loss = 0.0
-        h0, c0 = model.init_hidden(OPT.batch_size)
-        for inputs, labels in tqdm(train_loader):
+        correct, total = 0, 0
+        for inputs, labels in tqdm(train_loader, desc='Train'):
+            h0, c0 = model.init_hidden(inputs.size(0))
             torch.cuda.empty_cache()
             inputs, labels = inputs.to(model.device), labels.to(model.device)
             optimizer.zero_grad()
@@ -40,18 +38,27 @@ def train(model: LSTMModel,
             optimizer.step()
 
             running_loss += loss.item()
+            
+            if epoch % OPT.eval_freq == 0:
+                last_digit = outputs[0][-1]
+                softmax = torch.softmax(last_digit, dim=0)
+                _, predicted = torch.max(softmax, 0)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
 
         if epoch % OPT.eval_freq == 0:
             accuracy, loss = evaluate(model, criterion, test_loader)
-            print(f'Epoch {epoch}: accuracy {accuracy}, loss {loss}')
+            print(f'Epoch {epoch}\n'
+                  f'Train Accuracy: {correct / total:.3f}\tTrain Loss: {running_loss / total:.3f}\t'
+                  f'Test Accuracy: {accuracy:.3f}\tTest Loss: {loss:.3f}')
 
 
 @torch.no_grad()
 def evaluate(model: LSTMModel, criterion: nn.Module, loader: DataLoader):
     running_loss = 0.0
     correct, total = 0, 0
-    h0, c0 = model.init_hidden(OPT.batch_size)
-    for inputs, labels in loader:
+    for inputs, labels in tqdm(loader, desc='eval'):
+        h0, c0 = model.init_hidden(inputs.size(0))
         torch.cuda.empty_cache()
         inputs, labels = inputs.to(model.device), labels.to(model.device)
         outputs, _ = model(inputs, (h0, c0))
@@ -59,19 +66,25 @@ def evaluate(model: LSTMModel, criterion: nn.Module, loader: DataLoader):
         running_loss += loss.item()
 
         last_digit = outputs[0][-1]
-        _, predicted = torch.max(torch.softmax(last_digit, dim=1))
+        softmax = torch.softmax(last_digit, dim=0)
+        _, predicted = torch.max(softmax, 0)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
-    return correct / total, running_loss / len(loader)
+    return correct / total, running_loss / total
 
 
-def tokenize(filepath):
+def tokenize(filepath: str, sample_size: int):
     words = []
     with open(filepath, 'r') as f:
+        index = 0
         for line in f:
+            if index >= sample_size:
+                break
             words.extend(line.strip().split())
+            index += 1
     unique_tokens = Counter(words)
+    unique_tokens.update(['<unknown/>'])
     unique_tokens = sorted(unique_tokens, key=unique_tokens.get, reverse=True)
     idx2token = list(unique_tokens)
     token2idx = {token: idx for idx, token in enumerate(idx2token)}
@@ -80,11 +93,14 @@ def tokenize(filepath):
 
 def main():
     LOGGER.info(f'Start to tokenize train data in {OPT.train_file}')
-    words, idx2token, token2idx = tokenize(OPT.train_file)
+    train_words, train_idx2token, train_token2idx = tokenize(OPT.train_file, OPT.sample_size)
+    test_words, test_idx2token, test_toekn2idx = tokenize(OPT.test_file, int(OPT.sample_size // 4))
     LOGGER.info('Tokenization complete')
 
     LOGGER.info(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
-    train_loader, test_loader = load_data(words, token2idx, idx2token)
+    train_loader = make_loader(train_words, train_token2idx, train_idx2token)
+    test_loader = make_loader(test_words, train_token2idx, train_idx2token)
+    # train_loader, test_loader = load_data(train_words, train_token2idx, train_idx2token)
     LOGGER.info('Dataloader preparation complete')
 
     LOGGER.info('Start training')
@@ -94,7 +110,7 @@ def main():
         device = OPT.device
 
     try:
-        model = LSTMModel(device, len(token2idx), 32, 32).to(device)
+        model = LSTMModel(device, len(train_token2idx), 32, 32).to(device)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
         train(model, train_loader, test_loader, criterion, optimizer)
@@ -123,6 +139,8 @@ if __name__ == '__main__':
                         help='Learning rate')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default=None,
                         help='Where to train the model')
+    parser.add_argument('--sample_size', type=int, default=None,
+                        help='Sample size of train file')
     OPT = parser.parse_args()
 
     LOGGER = get_logger(__name__)

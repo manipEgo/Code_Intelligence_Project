@@ -10,7 +10,13 @@ class CodeDataset(Dataset):
         self.words = words
         self.idx2token = idx2token
         self.token2idx = token2idx
-        self.data = [token2idx[token] for token in self.words]
+        self.data = []
+        for token in self.words:
+            try:
+                self.data.append(token2idx[token])
+            except KeyError:
+                self.data.append(token2idx['<unknown/>'])
+        # self.data = [token2idx[token] for token in self.words]
         self.sample_size = sample_size
 
     def __len__(self):
