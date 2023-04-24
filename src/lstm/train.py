@@ -1,4 +1,5 @@
 import argparse
+import matplotlib.pyplot as plt
 import traceback
 import torch
 import torch.nn as nn
@@ -9,10 +10,11 @@ from dataset import CodeDataset
 from logger import get_logger
 from model import LSTMModel
 from torch.utils.data import DataLoader
+from typing import List, Dict
 from tqdm import tqdm
 
 
-def make_loader(words, token2idx, idx2token):
+def make_loader(words: List[str], token2idx: Dict[str, int], idx2token: List[str]):
     dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
     return DataLoader(dataset, batch_size=OPT.batch_size, shuffle=True)
 
@@ -22,6 +24,7 @@ def train(model: LSTMModel,
           test_loader: DataLoader,
           criterion: nn.Module,
           optimizer: optim.Optimizer):
+    x_axis, train_accuracy, train_loss, test_accuracy, test_loss = [], [], [], [], []
     for epoch in range(OPT.max_epochs):
         running_loss = 0.0
         correct, total = 0, 0
@@ -47,10 +50,25 @@ def train(model: LSTMModel,
                 correct += (predicted == labels).sum().item()
 
         if epoch % OPT.eval_freq == 0:
+            x_axis.append(epoch)
+            train_accuracy.append(correct / total)
+            train_loss.append(running_loss / len(train_loader))
             accuracy, loss = evaluate(model, criterion, test_loader)
-            print(f'Epoch {epoch}\n'
-                  f'Train Accuracy: {correct / total:.3f}\tTrain Loss: {running_loss / total:.3f}\t'
-                  f'Test Accuracy: {accuracy:.3f}\tTest Loss: {loss:.3f}')
+            test_accuracy.append(accuracy)
+            test_loss.append(loss)
+            print(f'Epoch {x_axis[-1]}\n'
+                  f'Train Accuracy: {train_accuracy[-1]:.3f}\tTrain Loss: {train_loss[-1]:.3f}\t'
+                  f'Test Accuracy: {test_accuracy[-1]:.3f}\tTest Loss: {test_loss[-1]:.3f}')
+            
+    torch.save(model.state_dict(), OPT.save_path)
+    
+    fig, ax = plt.subplots()
+    ax.plot(x_axis, train_accuracy, label='train accuracy')
+    ax.plot(x_axis, train_loss, label='train loss')
+    ax.plot(x_axis, test_accuracy, label='test accuracy')
+    ax.plot(x_axis, test_loss, label='test loss')
+    ax.legend()
+    fig.savefig('./Accuracu-Loss-Curve.png')
 
 
 @torch.no_grad()
@@ -100,7 +118,6 @@ def main():
     LOGGER.info(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
     train_loader = make_loader(train_words, train_token2idx, train_idx2token)
     test_loader = make_loader(test_words, train_token2idx, train_idx2token)
-    # train_loader, test_loader = load_data(train_words, train_token2idx, train_idx2token)
     LOGGER.info('Dataloader preparation complete')
 
     LOGGER.info('Start training')
@@ -109,6 +126,8 @@ def main():
     else:
         device = OPT.device
 
+    print(f'Train model on {device}')
+    
     try:
         model = LSTMModel(device, len(train_token2idx), 32, 32).to(device)
         criterion = nn.CrossEntropyLoss()
@@ -141,6 +160,8 @@ if __name__ == '__main__':
                         help='Where to train the model')
     parser.add_argument('--sample_size', type=int, default=None,
                         help='Sample size of train file')
+    parser.add_argument('--save_path', type=str, default='./save.pth',
+                        help='Path to save model')
     OPT = parser.parse_args()
 
     LOGGER = get_logger(__name__)

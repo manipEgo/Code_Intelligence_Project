@@ -14,9 +14,9 @@ class LSTMModel(nn.Module):
 
     def forward(self, x, hidden):
         out = self.encoder(x)
-        out, hidden = self.lstm(out, hidden)
+        out, (h_n, c_n) = self.lstm(out, hidden)
         out = self.decoder(out)
-        return out, hidden
+        return out, (h_n, c_n)
 
     def init_hidden(self, batch_size):
         return (torch.zeros(1, batch_size, self.hidden_dim).to(self.device),
