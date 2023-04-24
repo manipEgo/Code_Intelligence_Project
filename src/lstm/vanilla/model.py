@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class LSTMModel(nn.Module):
+class VanillaLSTM(nn.Module):
     def __init__(self, device, token_num, embedding_dim, hidden_dim, num_layers=1):
-        super(LSTMModel, self).__init__()
+        super(VanillaLSTM, self).__init__()
         self.hidden_dim = hidden_dim
         self.device = device
 
