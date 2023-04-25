@@ -1,5 +1,7 @@
 import argparse
+import cmd
 import matplotlib.pyplot as plt
+import pickle
 import traceback
 import torch
 import torch.nn as nn
@@ -11,6 +13,31 @@ from model import VanillaLSTM
 from torch.utils.data import DataLoader
 from typing import List, Dict
 from tqdm import tqdm
+
+
+class CLI(cmd.Cmd):
+    prompt = 'Vanilla LSTM >>> '
+    intro = "Welcome! Type 'help' to list commands"
+
+    def __init__(self, model: VanillaLSTM, token2idx: Dict[str, int], idx2token: List[str]):
+        super().__init__()
+        self.model = model
+        self.token2idx = token2idx
+        self.idx2token = idx2token
+
+    def default(self, arg: str):
+        inputs = torch.LongTensor([self.token2idx[token] for token in arg.split()]).to(DEVICE)
+        inputs = inputs.unsqueeze(0)
+        h0, c0 = self.model.init_hidden(inputs.size(0))
+        outputs, _ = self.model(inputs, (h0, c0))
+        last_token = outputs[0][-1]
+        softmax = torch.softmax(last_token, dim=0)
+        _, predicted = torch.max(softmax, 0)
+        
+        print(f'Next token: {self.idx2token[predicted]}')
+
+    def do_exit(self, args):
+        return True
 
 
 def make_loader(words: List[str], token2idx: Dict[str, int], idx2token: List[str]):
@@ -41,7 +68,7 @@ def train(model: VanillaLSTM,
             optimizer.step()
 
             running_loss += loss.item()
-            
+
             if epoch % OPT.eval_freq == 0:
                 last_digit = outputs[0][-1]
                 softmax = torch.softmax(last_digit, dim=0)
@@ -58,9 +85,9 @@ def train(model: VanillaLSTM,
             test_loss.append(loss)
             print(f'Train Accuracy: {train_accuracy[-1]:.3f}\tTrain Loss: {train_loss[-1]:.3f}\t'
                   f'Test Accuracy: {test_accuracy[-1]:.3f}\tTest Loss: {test_loss[-1]:.3f}')
-            
+
     torch.save(model.state_dict(), OPT.save_path)
-    
+
     fig, ax = plt.subplots()
     ax.plot(x_axis, train_accuracy, label='train accuracy')
     ax.plot(x_axis, train_loss, label='train loss')
@@ -114,38 +141,55 @@ def main():
     test_words, test_idx2token, test_token2idx = tokenize(OPT.test_file, OPT.test_lines)
     print('Tokenization complete')
 
+    if OPT.save_dict:
+        print('Start to save dict')
+        with open(OPT.save_dict, 'wb') as f:
+            pickle.dump({
+                'words': train_words,
+                'idx2token': train_idx2token,
+                'token2idx': train_token2idx
+            }, file=f)
+        print('Dict save complete')
+
     print(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
     train_loader = make_loader(train_words, train_token2idx, train_idx2token)
     test_loader = make_loader(test_words, train_token2idx, train_idx2token)
     print('Dataloader preparation complete')
 
     print('Start training')
-    if OPT.device is None:
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    else:
-        device = OPT.device
-
-    print(f'Train model on {device}')
-    
     try:
-        model = VanillaLSTM(device, len(train_token2idx), 32, 32).to(device)
+        model = VanillaLSTM(DEVICE, len(train_token2idx), 32, 32).to(DEVICE)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
-        with open('./args.txt', 'a') as f:
+        with open('checkpoint/args.txt', 'a') as f:
             print(model, file=f)
             print(criterion, file=f)
             print(optimizer, file=f)
+
+        print(f'Train model on {DEVICE}')
         train(model, train_loader, test_loader, criterion, optimizer)
     except torch.cuda.OutOfMemoryError:
-        print(torch.cuda.memory_summary(device=device))
+        print(torch.cuda.memory_summary(device=DEVICE))
         traceback.print_exc()
+
+
+def cli_main():
+    with open(OPT.save_dict, 'rb') as f:
+        save_dict = pickle.load(f)
+        token2idx = save_dict['token2idx']
+        idx2token = save_dict['idx2token']
+    model = VanillaLSTM(DEVICE, len(token2idx), 32, 32).to(DEVICE)
+    model.load_state_dict(torch.load(OPT.save_path))
+
+    cli = CLI(model, token2idx, idx2token)
+    cli.cmdloop()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train_file', type=str, required=True,
+    parser.add_argument('--train_file', type=str,
                         help='Path to the train file')
-    parser.add_argument('--test_file', type=str, required=True,
+    parser.add_argument('--test_file', type=str,
                         help='Path to the test file')
     parser.add_argument('--pred_file', type=str, default='./pred.txt',
                         help='Path to the output prediction file'),
@@ -167,8 +211,20 @@ if __name__ == '__main__':
                         help='Sample size of test file')
     parser.add_argument('--save_path', type=str, default='./save.pth',
                         help='Path to save model')
+    parser.add_argument('--save_dict', type=str, default=None,
+                        help='Path to save the words dict (words, idx2token, token2idx)')
+    parser.add_argument('--interactive', action='store_true', default=False)
     OPT = parser.parse_args()
-    with open('./args.txt', 'w') as f:
-        print(OPT, file=f)
 
-    main()
+    DEVICE = None
+    if OPT.device is None:
+        DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    else:
+        DEVICE = OPT.device
+
+    if OPT.interactive:
+        cli_main()
+    else:
+        with open('./checkpoint/args.txt', 'w') as f:
+            print(OPT, file=f)
+        main()
