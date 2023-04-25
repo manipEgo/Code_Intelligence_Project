@@ -16,7 +16,6 @@ class CodeDataset(Dataset):
                 self.data.append(token2idx[token])
             except KeyError:
                 self.data.append(token2idx['<unknown/>'])
-        # self.data = [token2idx[token] for token in self.words]
         self.sample_size = sample_size
 
     def __len__(self):
@@ -30,4 +29,4 @@ class CodeDataset(Dataset):
 
     def __getitem__(self, index):
         return (torch.tensor(self.data[index:index+self.seq_length]),
-                torch.tensor(self.data[index+1:index+1+self.seq_length]))
+                torch.tensor(self.data[index+self.seq_length]))

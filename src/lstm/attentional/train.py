@@ -7,8 +7,7 @@ import torch.optim as optim
 
 from collections import Counter
 from dataset import CodeDataset
-from logger import get_logger
-from model import LSTMModel
+from model import AttentionalLSTM
 from torch.utils.data import DataLoader
 from typing import List, Dict
 from tqdm import tqdm
@@ -19,13 +18,14 @@ def make_loader(words: List[str], token2idx: Dict[str, int], idx2token: List[str
     return DataLoader(dataset, batch_size=OPT.batch_size, shuffle=True)
 
 
-def train(model: LSTMModel,
+def train(model: AttentionalLSTM,
           train_loader: DataLoader,
           test_loader: DataLoader,
           criterion: nn.Module,
           optimizer: optim.Optimizer):
     x_axis, train_accuracy, train_loss, test_accuracy, test_loss = [], [], [], [], []
     for epoch in range(OPT.max_epochs):
+        print(f'Epoch {epoch}')
         running_loss = 0.0
         correct, total = 0, 0
         for inputs, labels in tqdm(train_loader, desc='Train'):
@@ -34,8 +34,9 @@ def train(model: LSTMModel,
             inputs, labels = inputs.to(model.device), labels.to(model.device)
             optimizer.zero_grad()
 
-            outputs, _ = model(inputs, (h0, c0))
-            loss = criterion(outputs.transpose(1, 2), labels)
+            outputs = model(inputs, (h0, c0))
+            outputs = torch.squeeze(outputs, dim=1)
+            loss = criterion(outputs, labels)
 
             loss.backward()
             optimizer.step()
@@ -43,9 +44,8 @@ def train(model: LSTMModel,
             running_loss += loss.item()
             
             if epoch % OPT.eval_freq == 0:
-                last_digit = outputs[0][-1]
-                softmax = torch.softmax(last_digit, dim=0)
-                _, predicted = torch.max(softmax, 0)
+                softmax = torch.softmax(outputs.data, dim=1)
+                _, predicted = torch.max(softmax, dim=1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
@@ -56,8 +56,7 @@ def train(model: LSTMModel,
             accuracy, loss = evaluate(model, criterion, test_loader)
             test_accuracy.append(accuracy)
             test_loss.append(loss)
-            print(f'Epoch {x_axis[-1]}\n'
-                  f'Train Accuracy: {train_accuracy[-1]:.3f}\tTrain Loss: {train_loss[-1]:.3f}\t'
+            print(f'Train Accuracy: {train_accuracy[-1]:.3f}\tTrain Loss: {train_loss[-1]:.3f}\t'
                   f'Test Accuracy: {test_accuracy[-1]:.3f}\tTest Loss: {test_loss[-1]:.3f}')
             
     torch.save(model.state_dict(), OPT.save_path)
@@ -72,20 +71,20 @@ def train(model: LSTMModel,
 
 
 @torch.no_grad()
-def evaluate(model: LSTMModel, criterion: nn.Module, loader: DataLoader):
+def evaluate(model: AttentionalLSTM, criterion: nn.Module, loader: DataLoader):
     running_loss = 0.0
     correct, total = 0, 0
     for inputs, labels in tqdm(loader, desc='eval'):
         h0, c0 = model.init_hidden(inputs.size(0))
         torch.cuda.empty_cache()
         inputs, labels = inputs.to(model.device), labels.to(model.device)
-        outputs, _ = model(inputs, (h0, c0))
-        loss = criterion(outputs.transpose(1, 2), labels)
+        outputs = model(inputs, (h0, c0))
+        outputs = torch.squeeze(outputs, dim=1)
+        loss = criterion(outputs, labels)
         running_loss += loss.item()
 
-        last_digit = outputs[0][-1]
-        softmax = torch.softmax(last_digit, dim=0)
-        _, predicted = torch.max(softmax, 0)
+        softmax = torch.softmax(outputs.data, dim=1)
+        _, predicted = torch.max(softmax, dim=1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
@@ -110,17 +109,17 @@ def tokenize(filepath: str, sample_size: int):
 
 
 def main():
-    LOGGER.info(f'Start to tokenize train data in {OPT.train_file}')
+    print(f'Start to tokenize train data in {OPT.train_file}')
     train_words, train_idx2token, train_token2idx = tokenize(OPT.train_file, OPT.sample_size)
-    test_words, test_idx2token, test_toekn2idx = tokenize(OPT.test_file, int(OPT.sample_size // 4))
-    LOGGER.info('Tokenization complete')
+    test_words, test_idx2token, test_token2idx = tokenize(OPT.test_file, OPT.test_lines)
+    print('Tokenization complete')
 
-    LOGGER.info(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
+    print(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
     train_loader = make_loader(train_words, train_token2idx, train_idx2token)
     test_loader = make_loader(test_words, train_token2idx, train_idx2token)
-    LOGGER.info('Dataloader preparation complete')
+    print('Dataloader preparation complete')
 
-    LOGGER.info('Start training')
+    print('Start training')
     if OPT.device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
     else:
@@ -129,9 +128,17 @@ def main():
     print(f'Train model on {device}')
     
     try:
-        model = LSTMModel(device, len(train_token2idx), 32, 32).to(device)
+        model = AttentionalLSTM(device,
+                                len(train_token2idx),
+                                embedding_dim=OPT.embedding_dim,
+                                hidden_dim=OPT.hidden_dim,
+                                num_layers=OPT.num_layers).to(device)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
+        with open('./args.txt', 'a') as f:
+            print(model, file=f)
+            print(criterion, file=f)
+            print(optimizer, file=f)
         train(model, train_loader, test_loader, criterion, optimizer)
     except torch.cuda.OutOfMemoryError:
         print(torch.cuda.memory_summary(device=device))
@@ -148,22 +155,30 @@ if __name__ == '__main__':
                         help='Path to the output prediction file'),
     parser.add_argument('--seq_length', type=int, default=10,
                         help='Sequence length needed to predict')
-    parser.add_argument('--batch_size', type=int, default=32,
+    parser.add_argument('--batch_size', type=int, default=128,
                         help='Batch size')
-    parser.add_argument('--max_epochs', type=int, default=100,
+    parser.add_argument('--max_epochs', type=int, default=5,
                         help='Max epochs'),
     parser.add_argument('--eval_freq', type=int, default=1,
                         help='Model evaluation frequency')
-    parser.add_argument('--learning_rate', type=float, default=0.01,
+    parser.add_argument('--learning_rate', type=float, default=0.001,
                         help='Learning rate')
     parser.add_argument('--device', choices=['cpu', 'cuda'], default=None,
                         help='Where to train the model')
     parser.add_argument('--sample_size', type=int, default=None,
                         help='Sample size of train file')
+    parser.add_argument('--test_lines', type=int, default=500,
+                        help='Sample size of test file')
+    parser.add_argument('--embedding_dim', type=int, default=32,
+                        help='Dimension of embedding layer output')
+    parser.add_argument('--hidden_dim', type=int, default=32,
+                        help='Dimension of LSTM hidden state')
+    parser.add_argument('--num_layers', type=int, default=1,
+                        help='Number of recurrent layers in LSTM')
     parser.add_argument('--save_path', type=str, default='./save.pth',
                         help='Path to save model')
     OPT = parser.parse_args()
-
-    LOGGER = get_logger(__name__)
+    with open('./args.txt', 'w') as f:
+        print(OPT, file=f)
 
     main()
