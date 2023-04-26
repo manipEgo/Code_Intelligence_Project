@@ -1,4 +1,5 @@
 import argparse
+import cmd
 import matplotlib.pyplot as plt
 import pickle
 import traceback
@@ -109,6 +110,47 @@ def tokenize(filepath: str, sample_size: int):
     return words, idx2token, token2idx
 
 
+class CLI(cmd.Cmd):
+    prompt = 'Attentional LSTM >>> '
+    intro = 'Welcome! Type "help" to list commands'
+
+    def __init__(self, model: AttentionalLSTM, token2idx: Dict[str, int], idx2token: List[str]):
+        super().__init__()
+        self.model = model
+        self.token2idx = token2idx
+        self.idx2token = idx2token
+
+    def default(self, arg: str):
+        inputs = torch.LongTensor([self.token2idx[token] for token in arg.split()]).to(DEVICE)
+        inputs = inputs.unsqueeze(0)
+        h0, c0 = self.model.init_hidden(inputs.size(0))
+        outputs = self.model(inputs, (h0, c0))
+        outputs = torch.squeeze(outputs, dim=1)
+        softmax = torch.softmax(outputs, dim=1)
+        _, predicted = torch.max(softmax, dim=1)
+
+        print(f'Next token: {self.idx2token[predicted]}')
+
+    def do_exit(self, args):
+        return True
+
+
+def cli_main():
+    with open(OPT.save_dict, 'rb') as f:
+        save_dict = pickle.load(f)
+        token2idx = save_dict['token2idx']
+        idx2token = save_dict['idx2token']
+    model = AttentionalLSTM(DEVICE,
+                            len(token2idx),
+                            embedding_dim=OPT.embedding_dim,
+                            hidden_dim=OPT.hidden_dim,
+                            num_layers=OPT.num_layers).to(DEVICE)
+    model.load_state_dict(torch.load(OPT.save_path))
+
+    cli = CLI(model, token2idx, idx2token)
+    cli.cmdloop()
+
+
 def main():
     print(f'Start to tokenize train data in {OPT.train_file}')
     train_words, train_idx2token, train_token2idx = tokenize(OPT.train_file, OPT.sample_size)
@@ -131,19 +173,13 @@ def main():
     print('Dataloader preparation complete')
 
     print('Start training')
-    if OPT.device is None:
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    else:
-        device = OPT.device
-
-    print(f'Train model on {device}')
-    
+    print(f'Train model on {DEVICE}')
     try:
-        model = AttentionalLSTM(device,
+        model = AttentionalLSTM(DEVICE,
                                 len(train_token2idx),
                                 embedding_dim=OPT.embedding_dim,
                                 hidden_dim=OPT.hidden_dim,
-                                num_layers=OPT.num_layers).to(device)
+                                num_layers=OPT.num_layers).to(DEVICE)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
         with open('checkpoint/args.txt', 'a') as f:
@@ -152,7 +188,7 @@ def main():
             print(optimizer, file=f)
         train(model, train_loader, test_loader, criterion, optimizer)
     except torch.cuda.OutOfMemoryError:
-        print(torch.cuda.memory_summary(device=device))
+        print(torch.cuda.memory_summary(device=DEVICE))
         traceback.print_exc()
 
 
@@ -190,8 +226,18 @@ if __name__ == '__main__':
                         help='Path to save model')
     parser.add_argument('--save_dict', type=str, default=None,
                         help='Path to save the words dict (words, idx2token, token2idx)')
+    parser.add_argument('--interactive', action='store_true', default=False)
     OPT = parser.parse_args()
-    with open('checkpoint/args.txt', 'w') as f:
-        print(OPT, file=f)
 
-    main()
+    DEVICE = None
+    if OPT.device is None:
+        DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+    else:
+        DEVICE = OPT.device
+
+    if OPT.interactive:
+        cli_main()
+    else:
+        with open('./checkpoint/args.txt', 'w') as f:
+            print(OPT, file=f)
+        main()

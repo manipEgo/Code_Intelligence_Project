@@ -15,31 +15,6 @@ from typing import List, Dict
 from tqdm import tqdm
 
 
-class CLI(cmd.Cmd):
-    prompt = 'Vanilla LSTM >>> '
-    intro = 'Welcome! Type "help" to list commands'
-
-    def __init__(self, model: VanillaLSTM, token2idx: Dict[str, int], idx2token: List[str]):
-        super().__init__()
-        self.model = model
-        self.token2idx = token2idx
-        self.idx2token = idx2token
-
-    def default(self, arg: str):
-        inputs = torch.LongTensor([self.token2idx[token] for token in arg.split()]).to(DEVICE)
-        inputs = inputs.unsqueeze(0)
-        h0, c0 = self.model.init_hidden(inputs.size(0))
-        outputs, _ = self.model(inputs, (h0, c0))
-        last_token = outputs[0][-1]
-        softmax = torch.softmax(last_token, dim=0)
-        _, predicted = torch.max(softmax, 0)
-        
-        print(f'Next token: {self.idx2token[predicted]}')
-
-    def do_exit(self, args):
-        return True
-
-
 def make_loader(words: List[str], token2idx: Dict[str, int], idx2token: List[str]):
     dataset = CodeDataset(OPT.seq_length, words, token2idx, idx2token)
     return DataLoader(dataset, batch_size=OPT.batch_size, shuffle=True)
@@ -171,6 +146,35 @@ def main():
     except torch.cuda.OutOfMemoryError:
         print(torch.cuda.memory_summary(device=DEVICE))
         traceback.print_exc()
+        
+        
+class CLI(cmd.Cmd):
+    prompt = 'Vanilla LSTM >>> '
+    intro = "Welcome! Type 'help' to list commands"
+
+    def __init__(self, model: VanillaLSTM, token2idx: Dict[str, int], idx2token: List[str]):
+        super().__init__()
+        self.model = model
+        self.token2idx = token2idx
+        self.idx2token = idx2token
+
+    def default(self, arg: str):
+        try:
+            inputs = torch.LongTensor([self.token2idx[token] for token in arg.split()]).to(DEVICE)
+        except KeyError:
+            print(f'Contain unknown token: {arg}')
+            return
+        inputs = inputs.unsqueeze(0)
+        h0, c0 = self.model.init_hidden(inputs.size(0))
+        outputs, _ = self.model(inputs, (h0, c0))
+        last_token = outputs[0][-1]
+        softmax = torch.softmax(last_token, dim=0)
+        _, predicted = torch.max(softmax, 0)
+        
+        print(f'Next token: {self.idx2token[predicted]}')
+
+    def do_exit(self, args):
+        return True
 
 
 def cli_main():
