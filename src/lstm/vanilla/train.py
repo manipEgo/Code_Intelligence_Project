@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 class CLI(cmd.Cmd):
     prompt = 'Vanilla LSTM >>> '
-    intro = "Welcome! Type 'help' to list commands"
+    intro = 'Welcome! Type "help" to list commands'
 
     def __init__(self, model: VanillaLSTM, token2idx: Dict[str, int], idx2token: List[str]):
         super().__init__()

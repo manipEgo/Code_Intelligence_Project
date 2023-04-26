@@ -1,5 +1,6 @@
 import argparse
 import matplotlib.pyplot as plt
+import pickle
 import traceback
 import torch
 import torch.nn as nn
@@ -113,6 +114,16 @@ def main():
     train_words, train_idx2token, train_token2idx = tokenize(OPT.train_file, OPT.sample_size)
     test_words, test_idx2token, test_token2idx = tokenize(OPT.test_file, OPT.test_lines)
     print('Tokenization complete')
+    
+    if OPT.save_dict:
+        print('Start to save dict')
+        with open(OPT.save_dict, 'wb') as f:
+            pickle.dump({
+                'words': train_words,
+                'idx2token': train_idx2token,
+                'token2idx': train_token2idx
+            }, file=f)
+        print('Dict save complete')
 
     print(f'Start to prepare dataloader. <Train: {OPT.train_file}> <Test: {OPT.test_file}>')
     train_loader = make_loader(train_words, train_token2idx, train_idx2token)
@@ -135,7 +146,7 @@ def main():
                                 num_layers=OPT.num_layers).to(device)
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=OPT.learning_rate)
-        with open('./args.txt', 'a') as f:
+        with open('checkpoint/args.txt', 'a') as f:
             print(model, file=f)
             print(criterion, file=f)
             print(optimizer, file=f)
@@ -177,8 +188,10 @@ if __name__ == '__main__':
                         help='Number of recurrent layers in LSTM')
     parser.add_argument('--save_path', type=str, default='./save.pth',
                         help='Path to save model')
+    parser.add_argument('--save_dict', type=str, default=None,
+                        help='Path to save the words dict (words, idx2token, token2idx)')
     OPT = parser.parse_args()
-    with open('./args.txt', 'w') as f:
+    with open('checkpoint/args.txt', 'w') as f:
         print(OPT, file=f)
 
     main()
