@@ -32,23 +32,27 @@ class AttentionalLSTM(nn.Module):
 
         self.embedd = nn.Embedding(token_num, embedding_dim)
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True)
-        self.v = nn.Linear(hidden_dim, 1)
-        self.Wm = nn.Linear(hidden_dim, hidden_dim)
-        self.Wh = nn.Linear(hidden_dim, hidden_dim)
+        self.v = nn.Linear(hidden_dim, 1, bias=False)
+        self.Wm = nn.Linear(hidden_dim, hidden_dim, bias=False)
+        self.Wh = nn.Linear(hidden_dim, hidden_dim, bias=False)
+        self.Wg = nn.Linear(2 * hidden_dim, hidden_dim, bias=False)
+        self.Wv = nn.Linear(hidden_dim, token_num)
         self.tanh = nn.Tanh()
-        self.softmax = nn.Softmax(dim=1)
-        self.fc = nn.Linear(hidden_dim, token_num)
 
     def forward(self, x, hidden):
-        seq_length = x.size(1)
-        out = self.embedd(x)
-        M_t, (h_t, _) = self.lstm(out, hidden)
+        batch_size, seq_length = x.size(0), x.size(1)
+        word_vectors = self.embedd(x)
+        M_t, (h_t, _) = self.lstm(word_vectors, hidden)
         h_t = h_t.transpose(0, 1)
-        A_t = self.v(self.tanh(self.Wm(M_t) + torch.matmul(torch.ones(seq_length, 1).to(self.device), self.Wh(h_t))))
-        alpha_t = self.softmax(A_t)
+        A_t = self.v(
+            self.tanh(self.Wm(M_t) + torch.bmm(torch.ones(batch_size, seq_length, 1).to(self.device), self.Wh(h_t)))
+        )
+        alpha_t = torch.softmax(A_t, dim=1)
         c_t = torch.matmul(alpha_t.transpose(1, 2), M_t)
-        out = self.fc(c_t)
-        return out
+        G_t = self.tanh(self.Wg(torch.concat((h_t, c_t), dim=2)))
+        y_t = torch.softmax(self.Wv(G_t), dim=2)
+        y_t = torch.squeeze(y_t, dim=1)
+        return y_t
 
     def init_hidden(self, batch_size):
         return (torch.zeros(1, batch_size, self.hidden_dim).to(self.device),

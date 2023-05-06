@@ -37,7 +37,6 @@ def train(model: AttentionalLSTM,
             optimizer.zero_grad()
 
             outputs = model(inputs, (h0, c0))
-            outputs = torch.squeeze(outputs, dim=1)
             loss = criterion(outputs, labels)
 
             loss.backward()
@@ -46,8 +45,7 @@ def train(model: AttentionalLSTM,
             running_loss += loss.item()
             
             if epoch % OPT.eval_freq == 0:
-                softmax = torch.softmax(outputs.data, dim=1)
-                _, predicted = torch.max(softmax, dim=1)
+                _, predicted = torch.max(outputs.data, dim=1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
@@ -81,12 +79,10 @@ def evaluate(model: AttentionalLSTM, criterion: nn.Module, loader: DataLoader):
         torch.cuda.empty_cache()
         inputs, labels = inputs.to(model.device), labels.to(model.device)
         outputs = model(inputs, (h0, c0))
-        outputs = torch.squeeze(outputs, dim=1)
         loss = criterion(outputs, labels)
         running_loss += loss.item()
 
-        softmax = torch.softmax(outputs.data, dim=1)
-        _, predicted = torch.max(softmax, dim=1)
+        _, predicted = torch.max(outputs.data, dim=1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
@@ -98,7 +94,7 @@ def tokenize(filepath: str, sample_size: int):
     with open(filepath, 'r') as f:
         index = 0
         for line in f:
-            if index >= sample_size:
+            if sample_size is not None and index >= sample_size:
                 break
             words.extend(line.strip().split())
             index += 1
@@ -214,7 +210,7 @@ if __name__ == '__main__':
                         help='Where to train the model')
     parser.add_argument('--sample_size', type=int, default=None,
                         help='Sample size of train file')
-    parser.add_argument('--test_lines', type=int, default=500,
+    parser.add_argument('--test_lines', type=int, default=None,
                         help='Sample size of test file')
     parser.add_argument('--embedding_dim', type=int, default=32,
                         help='Dimension of embedding layer output')
