@@ -1,0 +1,358 @@
+Model has a total of 124621824 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/py150/token_completion', langs='python', output_dir='../save/pyAdapted2', model_type='gpt2', pretrain_dir='gpt2', config_dir=None, tokenizer_dir=None, lit_file='../dataset/py150/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=True, do_eval=False, evaluate_during_training=True, do_lower_case=False, per_gpu_train_batch_size=2, per_gpu_eval_batch_size=4, gradient_accumulation_steps=4, learning_rate=8e-05, weight_decay=0.01, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=2.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=10, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=True, overwrite_cache=False, seed=42, not_pretrain=True, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=1, server_ip='', server_port='', log_file='py_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=0, start_step=0)
+Creating features from dataset file at ../dataset/py150/token_completion/train.txt
+Data size: 2000
+Rank 0, load 0
+Rank 0, load 10
+ Rank 0, load 30
+Rank 0, load 40
+Rank 0, load 50
+Rank 0, load 60
+Rank 0, load 70
+Rank 0, load 80
+Rank 0, load 90
+tokens: 3015722
+Rank 0 Training 3015722 token, 2945 samples
+Saving features into cached file ../save/pyAdapted2/train_blocksize_1024_wordsize_1_rank_0
+***** Running training *****
+  Num examples = 2945
+  Num epoch = 1
+  Instantaneous batch size per GPU = 2
+  Total train batch size (w. parallel, distributed & accumulation) = 8
+  Gradient Accumulation steps = 4
+  Total optimization steps = 736
+args.start_epoch
+0
+args.num_train_epochs
+2.0
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 5  ppl: 5472562744.2548  lr: 7.945652173913045e-05
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 10  ppl: 6342952.1841  lr: 7.891304347826088e-05
+Data size: 2000
+Rank 0, load 0
+Rank 0, load 10
+Rank 0, load 20
+Rank 0, load 30
+Rank 0, load 40
+Rank 0, load 50
+Rank 0, load 60
+Rank 0, load 70
+Rank 0, load 80
+Rank 0, load 90
+tokens: 2754467
+  perplexity = 70.7186
+Saving model checkpoint to ../save/pyAdapted2/checkpoint-10-70.7186
+Saving optimizer and scheduler states to ../save/pyAdapted2/checkpoint-last
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 15  ppl: 101.7929  lr: 7.836956521739132e-05
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 20  ppl: 37.3984  lr: 7.782608695652175e-05
+  perplexity = 18.9211
+Saving model checkpoint to ../save/pyAdapted2/checkpoint-20-18.9211
+Saving optimizer and scheduler states to ../save/pyAdapted2/checkpoint-last
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 25  ppl: 26.8168  lr: 7.728260869565219e-05
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 30  ppl: 15.6424  lr: 7.673913043478262e-05
+  perplexity = 11.8427
+Saving model checkpoint to ../save/pyAdapted2/checkpoint-30-11.8427
+Saving optimizer and scheduler states to ../save/pyAdapted2/checkpoint-last
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 35  ppl: 19.0152  lr: 7.619565217391306e-05
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 40  ppl: 13.3054  lr: 7.565217391304349e-05
+  perplexity = 8.2279
+Saving model checkpoint to ../save/pyAdapted2/checkpoint-40-8.2279
+Saving optimizer and scheduler states to ../save/pyAdapted2/checkpoint-last
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 45  ppl: 10.2354  lr: 7.510869565217393e-05
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+++++++++++++++++++++++
+//////////////////////////////////
+  steps: 50  ppl: 9.021  lr: 7.456521739130435e-05
+reload model from ../save/pyAdapted2/checkpoint-last, resume from 40 steps
+Model has a total of 124621824 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/py150/token_completion', langs='python', output_dir='../save/pyAdapted2', model_type='gpt2', pretrain_dir='../save/pyAdapted2/checkpoint-last', config_dir=None, tokenizer_dir=None, lit_file='../dataset/py150/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=True, do_eval=False, evaluate_during_training=True, do_lower_case=False, per_gpu_train_batch_size=2, per_gpu_eval_batch_size=4, gradient_accumulation_steps=4, learning_rate=8e-05, weight_decay=0.01, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=2.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=10, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=True, overwrite_cache=False, seed=42, not_pretrain=True, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=1, server_ip='', server_port='', log_file='py_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=1, start_step=40, config_name='../save/pyAdapted2/checkpoint-last/config.json')
+finetuneDataset
+../save/pyAdapted2/train_blocksize_1024_wordsize_1_rank_0
+Loading features from cached file ../save/pyAdapted2/train_blocksize_1024_wordsize_1_rank_0
+Loading optimizer from ../save/pyAdapted2/checkpoint-last/optimizer.pt
+***** Running training *****
+  Num examples = 2945
+  Num epoch = 1
+  Instantaneous batch size per GPU = 2
+  Total train batch size (w. parallel, distributed & accumulation) = 8
+  Gradient Accumulation steps = 4
+  Total optimization steps = 736
+args.start_epoch
+1
+args.num_train_epochs
+2.0
+reload model from ../save/pyAdapted2/checkpoint-last, resume from 40 steps
+Model has a total of 124621824 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/py150/token_completion', langs='python', output_dir='../save/pyAdapted2', model_type='gpt2', pretrain_dir='../save/pyAdapted2/checkpoint-last', config_dir=None, tokenizer_dir=None, lit_file='../dataset/py150/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=True, do_eval=False, evaluate_during_training=True, do_lower_case=False, per_gpu_train_batch_size=2, per_gpu_eval_batch_size=4, gradient_accumulation_steps=4, learning_rate=8e-05, weight_decay=0.01, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=2.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=10, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=True, overwrite_cache=False, seed=42, not_pretrain=True, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=1, server_ip='', server_port='', log_file='py_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=1, start_step=40, config_name='../save/pyAdapted2/checkpoint-last/config.json')
+finetuneDataset
+../save/pyAdapted2/train_blocksize_1024_wordsize_1_rank_0
+Loading features from cached file ../save/pyAdapted2/train_blocksize_1024_wordsize_1_rank_0
+Loading optimizer from ../save/pyAdapted2/checkpoint-last/optimizer.pt
+***** Running training *****
+  Num examples = 2945
+  Num epoch = 1
+  Instantaneous batch size per GPU = 2
+  Total train batch size (w. parallel, distributed & accumulation) = 8
+  Gradient Accumulation steps = 4
+  Total optimization steps = 736
+args.start_epoch
+1
+args.num_train_epochs
+2.0
+  steps: 45  ppl: 9.6523  lr: 7.945652173913045e-05
+  steps: 50  ppl: 8.9283  lr: 7.891304347826088e-05
+finetuneDataset
+../save/pyAdapted2/dev_blocksize_1024_wordsize_1_rank_0
+  perplexity = 6.4074
+Saving model checkpoint to ../save/pyAdapted2/checkpoint-50-6.4074
+Saving optimizer and scheduler states to ../save/pyAdapted2/checkpoint-last
+  steps: 55  ppl: 8.022  lr: 7.836956521739132e-05
+  steps: 60  ppl: 7.0229  lr: 7.782608695652175e-05
+finetuneDataset
+../save/pyAdapted2/dev_blocksize_1024_wordsize_1_rank_0

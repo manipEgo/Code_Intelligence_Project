@@ -1,0 +1,218 @@
+reload model from ../save/javaAdapted2/checkpoint-last, resume from 50 steps
+Model has a total of 124644864 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/javaCorpus/token_completion', langs='java', output_dir='../save/javaAdapted2', model_type='gpt2', pretrain_dir='../save/javaAdapted2/checkpoint-last', config_dir=None, tokenizer_dir=None, lit_file='../dataset/javaCorpus/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=True, do_eval=False, evaluate_during_training=True, do_lower_case=False, per_gpu_train_batch_size=2, per_gpu_eval_batch_size=4, gradient_accumulation_steps=4, learning_rate=8e-05, weight_decay=0.01, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=1.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=10, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=True, overwrite_cache=False, seed=42, not_pretrain=True, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=1, server_ip='', server_port='', log_file='java_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=1, start_step=50, config_name='../save/javaAdapted2/checkpoint-last/config.json')
+Loading features from cached file ../save/javaAdapted2/train_blocksize_1024_wordsize_1_rank_0
+Loading optimizer from ../save/javaAdapted2/checkpoint-last/optimizer.pt
+***** Running training *****
+  Num examples = 3077
+  Num epoch = 0
+  Instantaneous batch size per GPU = 2
+  Total train batch size (w. parallel, distributed & accumulation) = 8
+  Gradient Accumulation steps = 4
+  Total optimization steps = 384
+ global_step = 50, average loss = 0.0
+Model has a total of 124644864 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/javaCorpus/token_completion', langs='java', output_dir='../save/javaAdapted2', model_type='gpt2', pretrain_dir='../save/javaAdapted2/checkpoint-last', config_dir=None, tokenizer_dir=None, lit_file='../dataset/javaCorpus/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=False, do_eval=True, evaluate_during_training=False, do_lower_case=False, per_gpu_train_batch_size=4, per_gpu_eval_batch_size=16, gradient_accumulation_steps=1, learning_rate=5e-05, weight_decay=0.0, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=1.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=5000, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=False, overwrite_cache=False, seed=42, not_pretrain=False, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=-1, server_ip='', server_port='', log_file='java_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=0, start_step=0)
+Data size: 8267
+load 0
+load 10
+load 20
+load 30
+load 40
+load 50
+load 60
+load 70
+load 80
+load 90
+load 100
+tokens: 7506941
+0 are done!
+12244, 0.6746161385168246
+Model has a total of 124644864 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/javaCorpus/token_completion', langs='java', output_dir='../save/javaAdapted2', model_type='gpt2', pretrain_dir='../save/javaAdapted2/checkpoint-last', config_dir=None, tokenizer_dir=None, lit_file='../dataset/javaCorpus/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=False, do_eval=True, evaluate_during_training=False, do_lower_case=False, per_gpu_train_batch_size=4, per_gpu_eval_batch_size=16, gradient_accumulation_steps=1, learning_rate=5e-05, weight_decay=0.0, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=1.0, max_steps=-1, warmup_steps=0, logging_steps=5, save_steps=5000, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=False, overwrite_cache=False, seed=42, not_pretrain=False, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=-1, server_ip='', server_port='', log_file='java_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=0, start_step=0)
+0 are done!
+12244, 0.6746161385168246
+5 are done!
+66918, 0.6730924414955617
+10 are done!
+121614, 0.6692732744585327
+15 are done!
+174819, 0.6779125838724623
+20 are done!
+228577, 0.6757460286905507
+25 are done!
+282127, 0.6781555824150117
+30 are done!
+335034, 0.6811398246148153
+35 are done!
+387971, 0.6860822071752786
+40 are done!
+440681, 0.6931090743644496
+45 are done!
+496384, 0.6919139214801444
+50 are done!
+551214, 0.6899498198521808
+55 are done!
+607202, 0.6883771792583029
+60 are done!
+662274, 0.6919492536321824
+65 are done!
+721845, 0.6907521697871427
+70 are done!
+779282, 0.6912670894490056
+75 are done!
+837389, 0.690561972989853
+80 are done!
+895208, 0.6901524561889527
+85 are done!
+954486, 0.6897618194504687
+90 are done!
+1016500, 0.6919754058042302
+95 are done!
+1078856, 0.6927829107869817
+100 are done!
+1139418, 0.6935400353513811
+105 are done!
+1201717, 0.6930691668670743
+110 are done!
+1263979, 0.6917029475964395
+115 are done!
+1330459, 0.6940025960965351
+120 are done!
+1392988, 0.6948279525738915
+125 are done!
+1455068, 0.6961523447701413
+130 are done!
+1516310, 0.6960885307094196
+135 are done!
+1577273, 0.6951301391705811
+140 are done!
+1637611, 0.6941392064415787
+145 are done!
+1698230, 0.6936345489126915
+150 are done!
+1757929, 0.6963034343252771
+155 are done!
+1818066, 0.6980016127027292
+160 are done!
+1878811, 0.6997297759061449
+165 are done!
+1939884, 0.7007351985995038
+170 are done!
+1994296, 0.702379185436866
+175 are done!
+2052959, 0.7048245970815783
+180 are done!
+2112673, 0.7078710240534148
+185 are done!
+2169733, 0.7071561339574961
+190 are done!
+2228937, 0.7071141983824576
+195 are done!
+2287458, 0.7076042489086138
+200 are done!
+2347996, 0.7095676483264878
+205 are done!
+2407099, 0.7106143120827186
+210 are done!
+2467920, 0.7104460436318843
+215 are done!
+2526369, 0.7110960433729198
+220 are done!
+2582521, 0.7132383434636156
+225 are done!
+2643067, 0.7130617574204513
+230 are done!
+2705130, 0.7133561048822052
+235 are done!
+2767405, 0.7131211369495972
+240 are done!
+2825997, 0.7128899995293696
+245 are done!
+2888245, 0.71229864502492
+250 are done!
+2946111, 0.7115998005506242
+255 are done!
+3005862, 0.7112279272967289
+260 are done!
+3065869, 0.7104449015923381
+265 are done!
+3122161, 0.7094701394322714
+270 are done!
+3174297, 0.7085883898072549
+275 are done!
+3226864, 0.7077360558114628
+280 are done!
+3280103, 0.7068244503297609
+285 are done!
+3332929, 0.7058605208811829
+290 are done!
+3388086, 0.7049071363595847
+295 are done!
+3446904, 0.7039186469945203
+300 are done!
+3503651, 0.7029946761249908
+305 are done!
+3558477, 0.7020230845948984
+310 are done!
+3614238, 0.701113761738989
+315 are done!
+3667087, 0.7002320915756839
+320 are done!
+3719870, 0.6995545543258233
+325 are done!
+3773361, 0.6991483189655058
+330 are done!
+3829527, 0.6985040189036401
+335 are done!
+3885718, 0.6978324211895974
+340 are done!
+3941526, 0.6971705882442486
+345 are done!
+3994125, 0.6966472005758457
+350 are done!
+4052373, 0.69629868721364
+355 are done!
+4112435, 0.6955074061960858
+360 are done!
+4172847, 0.6948749858310166
+365 are done!
+4231974, 0.6940550674460665
+370 are done!
+4292443, 0.6931705324916371
+375 are done!
+4349796, 0.6927683505157484
+380 are done!
+4406104, 0.6921804387731202
+385 are done!
+4461077, 0.6917903456945487
+390 are done!
+4520231, 0.6910261887058426
+395 are done!
+4577460, 0.6906212178806587
+400 are done!
+4636671, 0.6905967665163217
+405 are done!
+4688882, 0.6909640720325229
+410 are done!
+4745692, 0.691073082703218
+415 are done!
+4806122, 0.6906322810781749
+420 are done!
+4865413, 0.6904606042693601
+425 are done!
+4928593, 0.6901515300614192
+430 are done!
+4989858, 0.6897891683490792
+435 are done!
+5047966, 0.689844582946874
+440 are done!
+5105253, 0.6898100838489297
+445 are done!
+5164317, 0.6902014341877154
+450 are done!
+5221462, 0.6908363979283964
+455 are done!
+5278875, 0.690983779687907
+Eval on 8267, saved at ../save/javaAdapted2/predictions.txt
+Test total tokens: 5314223, accuracy: 0.6908712713034436

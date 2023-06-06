@@ -1,0 +1,52 @@
+Model has a total of 124644864 trainable parameters
+Training/evaluation parameters Namespace(data_dir='../dataset/javaCorpus/token_completion', langs='java', output_dir='../save/javaAdapted2', model_type='gpt2', pretrain_dir='gpt2', config_dir=None, tokenizer_dir=None, lit_file='../dataset/javaCorpus/literals.json', load_name='pretrained', mlm=False, mlm_probability=0.15, cache_dir='', block_size=1024, do_train=True, do_eval=False, evaluate_during_training=True, do_lower_case=False, per_gpu_train_batch_size=2, per_gpu_eval_batch_size=4, gradient_accumulation_steps=4, learning_rate=8e-05, weight_decay=0.01, adam_epsilon=1e-08, max_grad_norm=1.0, num_train_epochs=1.0, max_steps=-1, warmup_steps=0, logging_steps=100, save_steps=10, save_total_limit=None, eval_all_checkpoints=False, no_cuda=False, overwrite_output_dir=True, overwrite_cache=False, seed=42, not_pretrain=True, fp16=False, fp16_opt_level='O1', local_rank=-1, node_index=-1, gpu_per_node=1, server_ip='', server_port='', log_file='java_adapted2.log', tensorboard_dir=None, train_line=2000, n_gpu=0, device=device(type='cpu'), start_epoch=0, start_step=0)
+Creating features from dataset file at ../dataset/javaCorpus/token_completion/train.txt
+Data size: 2000
+Rank 0, load 0
+Rank 0, load 10
+Rank 0, load 20
+Rank 0, load 30
+Rank 0, load 40
+Rank 0, load 50
+Rank 0, load 60
+Rank 0, load 70
+Rank 0, load 80
+Rank 0, load 90
+tokens: 3151229
+Rank 0 Training 3151229 token, 3077 samples
+Saving features into cached file ../save/javaAdapted2/train_blocksize_1024_wordsize_1_rank_0
+***** Running training *****
+  Num examples = 3077
+  Num epoch = 0
+  Instantaneous batch size per GPU = 2
+  Total train batch size (w. parallel, distributed & accumulation) = 8
+  Gradient Accumulation steps = 4
+  Total optimization steps = 384
+Data size: 2000
+Rank 0, load 0
+Rank 0, load 10
+Rank 0, load 20
+Rank 0, load 30
+Rank 0, load 40
+Rank 0, load 50
+Rank 0, load 60
+Rank 0, load 70
+Rank 0, load 80
+Rank 0, load 90
+tokens: 2395653
+  perplexity = 75.0011
+Saving model checkpoint to ../save/javaAdapted2/checkpoint-10-75.0011
+Saving optimizer and scheduler states to ../save/javaAdapted2/checkpoint-last
+  perplexity = 6.5013
+Saving model checkpoint to ../save/javaAdapted2/checkpoint-20-6.5013
+Saving optimizer and scheduler states to ../save/javaAdapted2/checkpoint-last
+  perplexity = 5.5375
+Saving model checkpoint to ../save/javaAdapted2/checkpoint-30-5.5375
+Saving optimizer and scheduler states to ../save/javaAdapted2/checkpoint-last
+  perplexity = 5.1891
+Saving model checkpoint to ../save/javaAdapted2/checkpoint-40-5.1891
+Saving optimizer and scheduler states to ../save/javaAdapted2/checkpoint-last
+  perplexity = 5.4789
+Saving model checkpoint to ../save/javaAdapted2/checkpoint-50-5.4789
+Saving optimizer and scheduler states to ../save/javaAdapted2/checkpoint-last
+

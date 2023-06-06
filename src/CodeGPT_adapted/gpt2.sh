@@ -1,9 +1,9 @@
-LANG=python                       # set python for py150
-DATADIR=../dataset/py150/token_completion
-LITFILE=../dataset/py150/literals.json
-OUTPUTDIR=../save/pyAdapted
+LANG=java                       # set python for py150
+DATADIR=../dataset/javaCorpus/token_completion
+LITFILE=../dataset/javaCorpus/literals.json
+OUTPUTDIR=../save/javaAdapted2
 PRETRAINDIR=gpt2    # microsoft/CodeGPT-small-py for py150
-LOGFILE=py_adapted.log
+LOGFILE=java_adapted2.log
 PER_NODE_GPU=1     # modify YOUR_GPU_NUM
 
 python -m torch.distributed.launch --nproc_per_node=$PER_NODE_GPU --use-env run_lm.py \
@@ -23,10 +23,10 @@ python -m torch.distributed.launch --nproc_per_node=$PER_NODE_GPU --use-env run_
         --per_gpu_train_batch_size=2 \
         --per_gpu_eval_batch_size=4 \
         --gradient_accumulation_steps=4 \
-        --num_train_epochs=2 \
-        --logging_steps=5 \
+        --num_train_epochs=1 \
+        --logging_steps=100 \
         --save_steps=10 \
         --seed=42 \
         --overwrite_output_dir \
         --not_pretrain \
-        --train_line=50000
+        --train_line=2000
